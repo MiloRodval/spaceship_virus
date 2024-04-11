@@ -1,0 +1,1 @@
+This is a game meant to be played in a terminal. A game programmed with Python.
