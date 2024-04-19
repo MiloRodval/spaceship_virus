@@ -19,6 +19,12 @@ class Spaceship:
         self.position[1] -= 1
         self.position[2] -= 1
 
+    def shoot(self):
+        jank.bullet(self.position[1], 'left_to_right')
+
+    def die(self):
+        jank.spaceship_dies()
+
     @property
     def position(self):
         return self._position
