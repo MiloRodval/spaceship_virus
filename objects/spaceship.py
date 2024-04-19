@@ -31,4 +31,7 @@ class Spaceship:
 
     @position.setter
     def position(self, position):
-        self._position = position
+        if position:
+            self._position = position
+        else:
+            raise ValueError('Position is missing')
