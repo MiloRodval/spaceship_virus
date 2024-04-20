@@ -7,6 +7,10 @@ class Jank:
     def __str__(self):
         f'{self.position = }{self.velocity = }{self.direction = }'
 
+    def take_life(self, thing):
+        if self.position == thing.position:
+            thing.life =- 1
+
     @classmethod
     def get(cls):
         return cls()
@@ -25,12 +29,22 @@ class Jank:
     
     @position.setter
     def position(self, position):
-        self._position = position
+        if position:
+            self._position = position
+        else:
+            raise ValueError('Position variable is missing')
 
     @velocity.setter
     def velocity(self, velocity):
-        self._velocity = velocity
+        if velocity:
+            self._velocity = velocity
+        else:
+            raise ValueError('Velocity variable is missing')
 
     @direction.setter
     def direction(self, direction):
-        self._direction = direction
+        if direction:
+            self._direction = direction
+        else:
+            raise ValueError('Direction variable is missing')
+
