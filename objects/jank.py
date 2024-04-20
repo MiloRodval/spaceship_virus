@@ -1,4 +1,8 @@
 class Jank:
+    '''
+    "Jank" include everything that moves through space from left to right or right to left and takes lifes.
+    That means that a bullet from a spaceship is also "junk".
+    '''
     def __init__(self, position: int, velocity: float, direction: str):
         self.position = position
         self.velocity = velocity
