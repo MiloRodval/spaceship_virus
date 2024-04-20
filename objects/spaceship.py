@@ -10,21 +10,21 @@ class Spaceship:
     def get(cls):
         return cls()
 
-    def move_up(self):
+    def move_down(self):
         self.position[0] += 1
         self.position[1] += 1
         self.position[2] += 1
 
-    def move_down(self):
+    def move_up(self):
         self.position[0] -= 1
         self.position[1] -= 1
         self.position[2] -= 1
 
-    def shoot(self):
+    def shoot(self, jank):
         jank.bullet(self.position[1], 'left_to_right')
 
     def die(self):
-        jank.spaceship_dies()
+        print('YOU ARE DEAD')
 
     @property
     def position(self):
@@ -45,5 +45,7 @@ class Spaceship:
     def life(self, life):
         if life:
             self._life = life
+        elif life == 0:
+            self.die()
         else:
             raise ValueError('Life variable missing')

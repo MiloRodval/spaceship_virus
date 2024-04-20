@@ -11,9 +11,18 @@ class Jank:
     def __str__(self):
         f'{self.position = }{self.velocity = }{self.direction = }'
 
-    def take_life(self, thing):
-        if self.position == thing.position:
-            thing.life =- 1
+
+    def take_life_from(self, thing):
+
+        if type(thing.position) == int:
+            if self.position == thing:
+                thing.life =- 1
+
+        elif type(thing.position) == list:
+            for i in range(len(thing.position)):
+                if self.position == thing.position[i]:
+                    thing.life -= 1
+
 
     @classmethod
     def get(cls):
