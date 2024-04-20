@@ -1,6 +1,7 @@
 class Spaceship:
-    def __init__(self, position=[0, 1, 2]):
+    def __init__(self, position=[0, 1, 2], life=3):
         self.position = position
+        self.life = life
 
     def __str__(self):
         return f'{self.position = }'
@@ -34,4 +35,15 @@ class Spaceship:
         if position:
             self._position = position
         else:
-            raise ValueError('Position is missing')
+            raise ValueError('Position variable missing')
+        
+    @property
+    def life(self):
+        return self._life
+    
+    @life.setter
+    def life(self, life):
+        if life:
+            self._life = life
+        else:
+            raise ValueError('Life variable missing')
