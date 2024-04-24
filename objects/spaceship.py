@@ -1,5 +1,6 @@
 class Spaceship:
-    def __init__(self, position=[0, 1, 2], life=3):
+    def __init__(self, speed, position={'x_position': 0, 'y_position': 0}, life=3):
+        self.speed = speed
         self.position = position
         self.life = life
 
@@ -9,33 +10,45 @@ class Spaceship:
     @classmethod
     def get(cls):
         return cls()
+    
+    def get_path(self):
+        return 'interface/images/spaceship.png'
 
     def move_down(self):
-        self.position[0] += 1
-        self.position[1] += 1
-        self.position[2] += 1
+        new_position = self.position.copy()
+        new_position['y_position'] += self.speed
+        self.position = new_position
 
     def move_up(self):
-        self.position[0] -= 1
-        self.position[1] -= 1
-        self.position[2] -= 1
+        new_position = self.position.copy()
+        new_position['y_position'] -= self.speed
+        self.position = new_position
 
-    def shoot(self, jank):
-        jank.bullet(self.position[1], 'left_to_right')
+    def shoot(self):
+        ...
 
     def die(self):
         print('YOU ARE DEAD')
+
+    @property
+    def speed(self):
+        return self._speed
+    
+    @speed.setter
+    def speed(self, speed):
+        if speed:
+            self._speed = speed
+        else:
+            raise ValueError('Speed variable missing')
 
     @property
     def position(self):
         return self._position
 
     @position.setter
-    def position(self, position):
-        if position:
-            self._position = position
-        else:
-            raise ValueError('Position variable missing')
+    def position(self, new_position):
+        if 0 <= new_position['y_position'] <= 250:
+            self._position = new_position
         
     @property
     def life(self):
