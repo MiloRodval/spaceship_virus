@@ -1,16 +1,20 @@
+import pygame
+
 class Jank:
     '''
     "Jank" include everything that moves through space from left to right or right to left and takes lifes.
     That means that a bullet from a spaceship is also "junk".
     '''
-    def __init__(self, position: int, velocity: float, direction: str):
-        self.position = position
+    def __init__(self, position = 0, velocity = 0, direction = 0):
+        '''self.position = position
         self.velocity = velocity
-        self.direction = direction
+        self.direction = direction'''
     
     def __str__(self):
         f'{self.position = }{self.velocity = }{self.direction = }'
 
+    def scaled_bullet_image(self):
+        return pygame.transform.scale(pygame.image.load('interface/images/laser_beam2.png').convert_alpha(), (40, 60))
 
     def take_life_from(self, thing):
 

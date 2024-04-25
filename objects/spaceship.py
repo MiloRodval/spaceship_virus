@@ -1,3 +1,5 @@
+import pygame
+
 class Spaceship:
     def __init__(self, speed, position={'x_position': 0, 'y_position': 0}, life=3):
         self.speed = speed
@@ -14,6 +16,9 @@ class Spaceship:
     def get_path(self):
         return 'interface/images/spaceship.png'
 
+    def scaled_spaceship_image(self):
+        return pygame.transform.scale(pygame.image.load(self.get_path()).convert_alpha(), (100, 150))
+
     def move_down(self):
         new_position = self.position.copy()
         new_position['y_position'] += self.speed
@@ -23,9 +28,6 @@ class Spaceship:
         new_position = self.position.copy()
         new_position['y_position'] -= self.speed
         self.position = new_position
-
-    def shoot(self):
-        ...
 
     def die(self):
         print('YOU ARE DEAD')
@@ -47,7 +49,7 @@ class Spaceship:
 
     @position.setter
     def position(self, new_position):
-        if 0 <= new_position['y_position'] <= 250:
+        if -50 <= new_position['y_position'] <= 300:
             self._position = new_position
         
     @property
