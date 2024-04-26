@@ -1,20 +1,14 @@
 import pygame
 
 class Jank:
-    '''
-    "Jank" include everything that moves through space from left to right or right to left and takes lifes.
-    That means that a bullet from a spaceship is also "junk".
-    '''
-    def __init__(self, position = 0, velocity = 0, direction = 0):
-        '''self.position = position
+
+    def __init__(self, box, position, velocity):
+        self.box = box
+        self.position = position
         self.velocity = velocity
-        self.direction = direction'''
-    
-    def __str__(self):
-        f'{self.position = }{self.velocity = }{self.direction = }'
 
     def scaled_bullet_image(self):
-        return pygame.transform.scale(pygame.image.load('interface/images/laser_beam2.png').convert_alpha(), (40, 60))
+        return pygame.transform.scale(pygame.image.load('interface/images/laser_beam2.png').convert_alpha(), (self.box, 60))
 
     def take_life_from(self, thing):
 
@@ -27,10 +21,13 @@ class Jank:
                 if self.position == thing.position[i]:
                     thing.life -= 1
 
-
     @classmethod
     def get(cls):
         return cls()
+    
+    @property
+    def box(self):
+        return self._box
     
     @property
     def position(self):
@@ -40,9 +37,10 @@ class Jank:
     def velocity(self):
         return self._velocity
     
-    @property
-    def direction(self):
-        return self._direction
+    @box.setter
+    def box(self, box):
+        if box:
+            self._box = box
     
     @position.setter
     def position(self, position):
@@ -57,11 +55,4 @@ class Jank:
             self._velocity = velocity
         else:
             raise ValueError('Velocity variable is missing')
-
-    @direction.setter
-    def direction(self, direction):
-        if direction:
-            self._direction = direction
-        else:
-            raise ValueError('Direction variable is missing')
 

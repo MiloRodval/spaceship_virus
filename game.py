@@ -4,11 +4,16 @@ import pygame
 import random
 import time
 
-pygame.display.set_caption('Spaceship Virus')
-player = Spaceship(speed=10)
-enemy = Spaceship(speed=10)
-screen = pygame.display.set_mode((1300, 400))
-background = pygame.transform.scale(pygame.image.load('interface/images/space_pixel_art.png'), (1300, 400)).convert()
+#pygame.display.set_caption('Spaceship Virus')
+WIDTH = 1300
+HEIGHT = 400
+# Remember to divide Y position and subtract half of the spaceship height
+player = Spaceship(speed=HEIGHT/10, height=HEIGHT/10, enemy=False, position={'x_position': 0, 'y_position': (HEIGHT/10)*5})
+enemy = Spaceship(speed=HEIGHT/10, height=HEIGHT/10, enemy=True, position={'x_position': 1200, 'y_position': random.randint(0, 400)})
+# This flag takes borders out
+flags = pygame.NOFRAME
+screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
+background = pygame.transform.scale(pygame.image.load('interface/images/space_pixel_art.png'), (WIDTH, HEIGHT)).convert()
 
 clock = pygame.time.Clock()
 
@@ -39,13 +44,11 @@ def draw(player_spaceship, bullets, enemies):
 
 
 def main():
-
     running: bool = True
 
     start_time = time.time()
     elapsed_time = 0
 
-    bullet = Jank()
     bullets: list = []
     enemies: list = []
 
@@ -57,9 +60,7 @@ def main():
         # Enemy render and enemy bullet render
         if elapsed_time >= 2:
             if len(enemies) < 3:
-                enemies.append({'itself': enemy.scaled_spaceship_image(), 'x': 1200, 'y': random.randint(-50, 300)})
-            bullets.append({'itself': bullet.scaled_bullet_image(), 'x': 1200, 'y': random.randint(-50, 300), 'enemy': True})
-            start_time = time.time()
+                enemies.append({'itself': enemy, 'x': enemy.position['y_position'], 'y': enemy.position['x_position']})
 
         # If player does something...
         for event in pygame.event.get():
@@ -76,12 +77,14 @@ def main():
             if keys[pygame.K_DOWN]:
                 player.move_down()
             if keys[pygame.K_SPACE]:
-                bullets.append({'bullet': bullet.scaled_bullet_image(), 'x': player.position['x_position'], 'y': player.position['y_position'], 'enemy': False})
+                player.shoot()
+            if keys[pygame.K_ESCAPE]:
+                pygame.quit()
 
         # Draw player, bullets and enemies
         draw(player.scaled_spaceship_image(), bullets, enemies)
 
-    pygame.QUIT()
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
