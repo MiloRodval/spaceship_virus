@@ -6,6 +6,7 @@ class Spaceship:
         self.height = height
         self.position = position
         self.life = life
+        #self.mask = pygame.mask.from_surface(self.scaled_spaceship_image())
 
     def __str__(self):
         return f'{self.position = }'
@@ -89,7 +90,12 @@ class Spaceship:
             raise ValueError('Life variable missing')
     
 class Enemy(Spaceship):
-    pass
+    def __init__(self, speed, height, position={'x_position': 0, 'y_position': 0}, life=1):
+        super().__init__(speed, height, position={'x_position': 0, 'y_position': 0}, life=1)
+        self.speed = speed
+        self.height = height
+        self.position = position
+        self.life = life
 
     def get_path(self):
         return 'interface/images/ExportedLayers.png'
