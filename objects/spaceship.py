@@ -39,8 +39,9 @@ class Spaceship:
         while shooting:
             pygame.transform.scale(
                 pygame.image.load('interface/images/laser_beam2.png').convert_alpha(),
-                (position_copy['x_position'], position_copy['y_position']/2)
+                (position_copy['x_position'] + 50, position_copy['y_position']/2)
             )
+            shooting = False
 
     def die(self):
         print('YOU ARE DEAD')

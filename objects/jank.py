@@ -2,16 +2,16 @@ import pygame
 
 class Jank:
 
-    def __init__(self, box, position, velocity):
-        self.box = box
+    def __init__(self, height, speed, position={'x_position': 0, 'y_position': 0}):
+        self.height = height
+        self.speed = speed
         self.position = position
-        self.velocity = velocity
 
     def scaled_bullet_image(self):
-        return pygame.transform.scale(pygame.image.load('interface/images/laser_beam2.png').convert_alpha(), (self.box, 60))
+        return pygame.transform.scale(pygame.image.load('interface/images/laser_beam2.png').convert_alpha(), (60, self.height))
     
     def blit(self, screen):
-        return screen.blit(self.scaled_bullet_image(), self.position)
+        return screen.blit(self.scaled_bullet_image(), (self.position['x_position'], self.position['y_position']))
 
     def take_life_from(self, thing):
 
@@ -29,21 +29,21 @@ class Jank:
         return cls()
     
     @property
-    def box(self):
-        return self._box
+    def height(self):
+        return self._height
     
     @property
     def position(self):
         return self._position
     
     @property
-    def velocity(self):
-        return self._velocity
+    def speed(self):
+        return self._speed
     
-    @box.setter
-    def box(self, box):
-        if box:
-            self._box = box
+    @height.setter
+    def height(self, height):
+        if height:
+            self._height = height
     
     @position.setter
     def position(self, position):
@@ -52,10 +52,10 @@ class Jank:
         else:
             raise ValueError('Position variable is missing')
 
-    @velocity.setter
-    def velocity(self, velocity):
-        if velocity:
-            self._velocity = velocity
+    @speed.setter
+    def speed(self, speed):
+        if speed:
+            self._speed = speed
         else:
-            raise ValueError('Velocity variable is missing')
+            raise ValueError('speed variable is missing')
 

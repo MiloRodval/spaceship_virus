@@ -1,5 +1,6 @@
 from objects.spaceship import Spaceship
 from objects.spaceship import Enemy
+from objects.jank import Jank
 import pygame
 import random
 
@@ -9,6 +10,10 @@ HEIGHT = 400
 # Remember to divide Y position and subtract half of the spaceship height
 player = Spaceship(speed=HEIGHT/10, height=HEIGHT/10, position={'x_position': 0, 'y_position': (HEIGHT/10)*5})
 enemy = Enemy(speed=HEIGHT/10, height=HEIGHT/10, position={'x_position': 1220, 'y_position': random.randint(0, 10) * HEIGHT/10})
+beam = Jank(height=HEIGHT/10, speed=10, position={
+    'x_position': player.position['x_position'] + player.position['x_position'] / 2,
+    'y_position': player.position['y_position']
+    })
 # This flag takes borders out
 flags = pygame.NOFRAME
 screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
@@ -16,12 +21,14 @@ background = pygame.transform.scale(pygame.image.load('interface/images/space_ba
 clock = pygame.time.Clock()
 
 
-def draw(bullets):
+def draw(bullets, kk):
 
     # Draw background and player
     screen.blit(background, (0, 0))
     player.blit(screen)
     enemy.blit(screen)
+    if kk == True:
+        beam.blit(screen)
 
     # Draw enemy's bullets
     if not bullets == []:
@@ -40,12 +47,16 @@ def draw(bullets):
 def main():
     running: bool = True
     bullets: list = []
-
     enemy_moved: bool = False
+    kk = True
 
     while running:
 
         clock.tick(60)
+
+        beam.position['x_position'] += 20
+        if beam.position['x_position'] > WIDTH:
+            kk = False            
 
         # If player does something...
         for event in pygame.event.get():
@@ -54,7 +65,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 break
-                
+
             # If press keys...
             keys = pygame.key.get_pressed()
             if keys[pygame.K_UP]:
@@ -80,7 +91,7 @@ def main():
                 pygame.quit()
 
         # Draw player, bullets and enemies
-        draw(bullets)
+        draw(bullets, kk)
 
     pygame.quit()
 
