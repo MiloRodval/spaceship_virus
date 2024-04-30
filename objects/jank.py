@@ -9,6 +9,9 @@ class Jank:
 
     def scaled_bullet_image(self):
         return pygame.transform.scale(pygame.image.load('interface/images/laser_beam2.png').convert_alpha(), (self.box, 60))
+    
+    def blit(self, screen):
+        return screen.blit(self.scaled_bullet_image(), self.position)
 
     def take_life_from(self, thing):
 

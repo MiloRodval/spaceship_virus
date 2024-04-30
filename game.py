@@ -1,33 +1,27 @@
 from objects.spaceship import Spaceship
-from objects.jank import Jank
+from objects.spaceship import Enemy
 import pygame
 import random
-import time
 
-#pygame.display.set_caption('Spaceship Virus')
+pygame.display.set_caption('Spaceship Virus')
 WIDTH = 1300
 HEIGHT = 400
 # Remember to divide Y position and subtract half of the spaceship height
-player = Spaceship(speed=HEIGHT/10, height=HEIGHT/10, enemy=False, position={'x_position': 0, 'y_position': (HEIGHT/10)*5})
-enemy = Spaceship(speed=HEIGHT/10, height=HEIGHT/10, enemy=True, position={'x_position': 1200, 'y_position': random.randint(0, 400)})
+player = Spaceship(speed=HEIGHT/10, height=HEIGHT/10, position={'x_position': 0, 'y_position': (HEIGHT/10)*5})
+enemy = Enemy(speed=HEIGHT/10, height=HEIGHT/10, position={'x_position': 1220, 'y_position': random.randint(0, 10) * HEIGHT/10})
 # This flag takes borders out
 flags = pygame.NOFRAME
 screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
-background = pygame.transform.scale(pygame.image.load('interface/images/space_pixel_art.png'), (WIDTH, HEIGHT)).convert()
-
+background = pygame.transform.scale(pygame.image.load('interface/images/space_background.png'), (WIDTH, HEIGHT)).convert()
 clock = pygame.time.Clock()
 
 
-def draw(player_spaceship, bullets, enemies):
+def draw(bullets):
 
     # Draw background and player
     screen.blit(background, (0, 0))
-    screen.blit(player_spaceship, (player.position['x_position'], player.position['y_position']))
-
-    # Draw enemies
-    if not enemies == []:
-        for e in enemies:
-            screen.blit(e['itself'], (e['x'], e['y']))
+    player.blit(screen)
+    enemy.blit(screen)
 
     # Draw enemy's bullets
     if not bullets == []:
@@ -35,32 +29,23 @@ def draw(player_spaceship, bullets, enemies):
         for bullet in bullets_copy:
             if bullet['enemy'] == False:
                 bullet['x'] += 1
-                screen.blit(bullet['itself'], (bullet['x'], bullet['y']))
+                bullet.blit(screen)
             elif bullet['enemy'] == True:
                 bullet['x'] -= 1
-                screen.blit(bullet['itself'], (bullet['x'], bullet['y']))
+                bullet.blit(screen)
             
     pygame.display.update()
 
 
 def main():
     running: bool = True
-
-    start_time = time.time()
-    elapsed_time = 0
-
     bullets: list = []
-    enemies: list = []
+
+    enemy_moved: bool = False
 
     while running:
 
         clock.tick(60)
-        elapsed_time = time.time() - start_time
-
-        # Enemy render and enemy bullet render
-        if elapsed_time >= 2:
-            if len(enemies) < 3:
-                enemies.append({'itself': enemy, 'x': enemy.position['y_position'], 'y': enemy.position['x_position']})
 
         # If player does something...
         for event in pygame.event.get():
@@ -78,11 +63,24 @@ def main():
                 player.move_down()
             if keys[pygame.K_SPACE]:
                 player.shoot()
+
+            if keys[pygame.K_w] and not enemy_moved:
+                enemy.move_up()
+                enemy_moved = True
+            elif keys[pygame.K_w]:
+                enemy_moved = False
+
+            if keys[pygame.K_s] and not enemy_moved:
+                enemy.move_down()
+                enemy_moved = True
+            elif keys[pygame.K_s]:
+                enemy_moved = False
+
             if keys[pygame.K_ESCAPE]:
                 pygame.quit()
 
         # Draw player, bullets and enemies
-        draw(player.scaled_spaceship_image(), bullets, enemies)
+        draw(bullets)
 
     pygame.quit()
 

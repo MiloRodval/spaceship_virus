@@ -1,10 +1,9 @@
 import pygame
 
 class Spaceship:
-    def __init__(self, speed, height, enemy, position={'x_position': 0, 'y_position': 0}, life=3):
+    def __init__(self, speed, height, position={'x_position': 0, 'y_position': 0}, life=3):
         self.speed = speed
         self.height = height
-        self.enemy = enemy
         self.position = position
         self.life = life
 
@@ -19,7 +18,10 @@ class Spaceship:
         return 'interface/images/spaceship.png'
 
     def scaled_spaceship_image(self):
-        return pygame.transform.scale(pygame.image.load(self.get_path()).convert_alpha(), (self.height, 70))
+        return pygame.transform.scale(pygame.image.load(self.get_path()).convert_alpha(), (60, self.height))
+    
+    def blit(self, screen):
+        return screen.blit(self.scaled_spaceship_image(), (self.position['x_position'], self.position['y_position']))
 
     def move_down(self):
         new_position = self.position.copy()
@@ -32,21 +34,13 @@ class Spaceship:
         self.position = new_position
 
     def shoot(self):
-        '''position_copy = self.position.copy()
+        position_copy = self.position.copy()
         shooting = True
         while shooting:
             pygame.transform.scale(
                 pygame.image.load('interface/images/laser_beam2.png').convert_alpha(),
                 (position_copy['x_position'], position_copy['y_position']/2)
             )
-            if self.enemy == True:
-                position_copy['y_position'] =- self.speed
-                if position_copy['y_position'] < 0:
-                    self.enemy = False
-            elif self.enemy == False:
-                position_copy['y_position'] =+ self.speed
-                if position_copy['y_position'] > 1300:
-                    self.enemy = True'''
 
     def die(self):
         print('YOU ARE DEAD')
@@ -58,10 +52,6 @@ class Spaceship:
     @property
     def height(self):
         return self._height
-
-    @property
-    def enemy(self):
-        return self._enemy
 
     @property
     def position(self):
@@ -83,14 +73,9 @@ class Spaceship:
         if height:
             self._height = height
 
-    @enemy.setter
-    def enemy(self, enemy):
-        self._enemy = enemy
-
     @position.setter
     def position(self, new_position):
-        # Raro. Deberia ser * 10 - 1 (restando la height de la spaceship)
-        if self.height - self.height <= new_position['y_position'] <= self.height * 8:
+        if 0 <= new_position['y_position'] <= (10 - 1) * self.height:
             self._position = new_position
             
     @life.setter
@@ -102,3 +87,14 @@ class Spaceship:
         else:
             raise ValueError('Life variable missing')
     
+class Enemy(Spaceship):
+    pass
+
+    def get_path(self):
+        return 'interface/images/ExportedLayers.png'
+
+    def scaled_spaceship_image(self):
+        return pygame.transform.scale(pygame.image.load(self.get_path()).convert_alpha(), (60, self.height))
+    
+    def blit(self, screen):
+        return screen.blit(self.scaled_spaceship_image(), (self.position['x_position'], self.position['y_position']))
