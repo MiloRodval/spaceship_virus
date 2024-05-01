@@ -4,16 +4,21 @@ from objects.jank import Jank
 import pygame
 import random
 
+# BUGS
+# En la segunda o tercera BOX el enemy no muere
+# A veces aparece el enemigo en la coordenada 0, 0
+
 pygame.display.set_caption('Spaceship Virus')
 WIDTH = 1300
-HEIGHT = 400
+HEIGHT = 700
+BOX = round(HEIGHT / 13)
 # Remember to divide Y position and subtract half of the spaceship height
-player = Spaceship(speed=HEIGHT/10, height=HEIGHT/10, position={'x_position': 0, 'y_position': (HEIGHT/10)*5})
-enemy = [Enemy(speed=HEIGHT/10, height=HEIGHT/10, position={'x_position': 1200, 'y_position': random.randint(0, 10) * HEIGHT/10})]
+player = Spaceship(speed=BOX, height=BOX, position={'x_position': 0, 'y_position': BOX*5})
+enemy = [Enemy(speed=BOX, height=BOX, position={'x_position': 1200, 'y_position': random.randint(2, 11) * BOX})]
 # This flag takes borders out
 flags = pygame.NOFRAME
 screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
-background = pygame.transform.scale(pygame.image.load('interface/images/space_background.png'), (WIDTH, HEIGHT)).convert()
+background = pygame.transform.scale(pygame.image.load('interface/images/space_background.png'), (WIDTH, BOX*10)).convert()
 clock = pygame.time.Clock()
 previous_bullet_position = {}
 
@@ -21,7 +26,7 @@ previous_bullet_position = {}
 def draw(spaceship_bullets):
 
     # Draw background, player and enemy
-    screen.blit(background, (0, 0))
+    screen.blit(background, (0, BOX*2))
     player.blit(screen)
     # Solo lo estoy dejando de mostrar
     if not enemy == []:
@@ -66,7 +71,7 @@ def main():
                 player.move_down()
             if keys[pygame.K_SPACE]:
                 beam = (
-                    Jank(height=HEIGHT/10, speed=40, position={
+                    Jank(height=BOX, speed=40, position={
                         'x_position': player.position['x_position'] + player.position['x_position'] / 2,
                         'y_position': player.position['y_position']
                     })

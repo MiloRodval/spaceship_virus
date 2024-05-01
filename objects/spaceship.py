@@ -64,7 +64,7 @@ class Spaceship:
 
     @position.setter
     def position(self, new_position):
-        if 0 <= new_position['y_position'] <= (10 - 1) * self.height:
+        if self.height * 2 <= new_position['y_position'] <= self.height * 11:
             self._position = new_position
             
     @life.setter
