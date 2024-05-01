@@ -9,7 +9,7 @@ WIDTH = 1300
 HEIGHT = 400
 # Remember to divide Y position and subtract half of the spaceship height
 player = Spaceship(speed=HEIGHT/10, height=HEIGHT/10, position={'x_position': 0, 'y_position': (HEIGHT/10)*5})
-enemy = Enemy(speed=HEIGHT/10, height=HEIGHT/10, position={'x_position': 1220, 'y_position': random.randint(0, 10) * HEIGHT/10})
+enemy = [Enemy(speed=HEIGHT/10, height=HEIGHT/10, position={'x_position': 1200, 'y_position': random.randint(0, 10) * HEIGHT/10})]
 # This flag takes borders out
 flags = pygame.NOFRAME
 screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
@@ -18,31 +18,37 @@ clock = pygame.time.Clock()
 previous_bullet_position = {}
 
 
-def draw(bullets):
+def draw(spaceship_bullets):
 
-    # Draw background and player
+    # Draw background, player and enemy
     screen.blit(background, (0, 0))
     player.blit(screen)
-    enemy.blit(screen)
+    # Solo lo estoy dejando de mostrar
+    if not enemy == []:
+        enemy[0].blit(screen)
 
-    # Draw enemy's bullets
-    if not bullets == []:
-        for bullet in bullets:
-            previous_position = previous_bullet_position.get(bullet)
-            bullet.blit(screen)
-            previous_bullet_position[bullet] = bullet.position
+    # Draw spaceship bullets
+    if not spaceship_bullets == []:
+        for bullet in spaceship_bullets:
+            if not enemy == []:
+                if bullet.position == enemy[0].position:
+                    del bullet
+                    del enemy[0]
+                else:
+                    bullet.blit(screen)
+                    previous_bullet_position[bullet] = bullet.position
             
     pygame.display.update()
 
 
 def main():
     running: bool = True
-    bullets: list = []
+    spaceship_bullets: list = []
     enemy_moved: bool = False
 
     while running:
 
-        clock.tick(60)          
+        clock.tick(60)        
 
         # If player does something...
         for event in pygame.event.get():
@@ -60,21 +66,21 @@ def main():
                 player.move_down()
             if keys[pygame.K_SPACE]:
                 beam = (
-                    Jank(height=HEIGHT/10, speed=50, position={
+                    Jank(height=HEIGHT/10, speed=40, position={
                         'x_position': player.position['x_position'] + player.position['x_position'] / 2,
                         'y_position': player.position['y_position']
                     })
                 )
-                bullets.append(beam)
+                spaceship_bullets.append(beam)
 
             if keys[pygame.K_w] and not enemy_moved:
-                enemy.move_up()
+                enemy[0].move_up()
                 enemy_moved = True
             elif keys[pygame.K_w]:
                 enemy_moved = False
 
             if keys[pygame.K_s] and not enemy_moved:
-                enemy.move_down()
+                enemy[0].move_down()
                 enemy_moved = True
             elif keys[pygame.K_s]:
                 enemy_moved = False
@@ -83,11 +89,15 @@ def main():
             if keys[pygame.K_ESCAPE]:
                 pygame.quit()
 
-        for bullet in bullets:
-            bullet.update(WIDTH, bullets)
+        if not spaceship_bullets == []:
+            for bullet in spaceship_bullets:
+                bullet.move_to_right(WIDTH, spaceship_bullets)
+                if not enemy == []:
+                    if enemy[0].position['x_position'] == round(bullet.position['x_position']) and enemy[0].position['y_position'] == round(bullet.position['y_position']):
+                        enemy[0].life = 0
 
-        # Draw player, bullets and enemies
-        draw(bullets)
+        # Draw player, spaceship_bullets and enemies
+        draw(spaceship_bullets)
 
     pygame.quit()
 

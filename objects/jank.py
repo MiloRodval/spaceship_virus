@@ -13,21 +13,15 @@ class Jank:
     def blit(self, screen):
         return screen.blit(self.scaled_bullet_image(), (self.position['x_position'], self.position['y_position']))
 
-    def update(self, width, bullets):
+    def move_to_right(self, width, bullets):
         self.position['x_position'] += self.speed
         if self.position['x_position'] > width:
             bullets.remove(self)
 
-    def take_life_from(self, thing):
-
-        if type(thing.position) == int:
-            if self.position == thing:
-                thing.life =- 1
-
-        elif type(thing.position) == list:
-            for i in range(len(thing.position)):
-                if self.position == thing.position[i]:
-                    thing.life -= 1
+    def move_to_left(self, width, bullets):
+        self.position['x_position'] -= self.speed
+        if self.position['x_position'] > width:
+            bullets.remove(self)
 
     @classmethod
     def get(cls):

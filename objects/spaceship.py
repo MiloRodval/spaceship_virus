@@ -34,19 +34,6 @@ class Spaceship:
         new_position['y_position'] -= self.speed
         self.position = new_position
 
-    def shoot(self):
-        position_copy = self.position.copy()
-        shooting = True
-        while shooting:
-            pygame.transform.scale(
-                pygame.image.load('interface/images/laser_beam2.png').convert_alpha(),
-                (position_copy['x_position'] + 50, position_copy['y_position']/2)
-            )
-            shooting = False
-
-    def die(self):
-        print('YOU ARE DEAD')
-
     @property
     def speed(self):
         return self._speed
@@ -82,10 +69,8 @@ class Spaceship:
             
     @life.setter
     def life(self, life):
-        if life:
+        if life or life == 0:
             self._life = life
-        elif life == 0:
-            self.die()
         else:
             raise ValueError('Life variable missing')
     
