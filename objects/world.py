@@ -17,6 +17,8 @@ class World:
         return pygame.display.set_mode((self.width, self.height), self.take_borders_out())
     
 class Screen:
+    def __init__(self, text_on_screen):
+        self.text_on_screen = text_on_screen
 
     def get_user_input(self):
         return input()
@@ -25,4 +27,4 @@ class Screen:
         return pygame.font.Font(None, 32)
     
     def get_screen_text(self):
-        return self.get_screen_font().render('Hello', True, (0, 255, 255))
+        return self.get_screen_font().render(self.text_on_screen, True, (0, 255, 255))

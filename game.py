@@ -4,7 +4,6 @@ from objects.jank import Jank
 from objects.world import World
 from objects.world import Screen
 import pygame
-import copy
 import random
 
 # BUGS
@@ -21,8 +20,8 @@ world = World(
     background_image = 'interface/images/space_background.png'
 )
 
-screen = Screen(
-
+spaceship_screen = Screen(
+    text_on_screen=''
 )
 
 player = Spaceship(
@@ -66,8 +65,8 @@ def draw(spaceship_bullets):
                 bullet.blit(game_screen)
                 previous_bullet_position[bullet] = bullet.position
 
-    game_screen.blit(screen.get_screen_text(), dialogue_screen)
-            
+    game_screen.blit(spaceship_screen.get_screen_text(), dialogue_screen)
+
     pygame.display.update()
 
 
@@ -75,7 +74,6 @@ def main():
 
     running: bool = True
     enemy_moved: bool = False
-    space_pressed: bool = False
     spaceship_bullets: list = []
 
     while running:
@@ -118,6 +116,9 @@ def main():
 
             if keys[pygame.K_ESCAPE]:
                 pygame.quit()
+
+            if event.type == pygame.KEYDOWN:
+                spaceship_screen.text_on_screen += event.unicode
 
         if not spaceship_bullets == []:
             for bullet in spaceship_bullets:
