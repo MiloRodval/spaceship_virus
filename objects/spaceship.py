@@ -19,7 +19,9 @@ class Spaceship:
         return 'interface/images/spaceship.png'
 
     def scaled_spaceship_image(self):
-        return pygame.transform.scale(pygame.image.load(self.get_path()).convert_alpha(), (60, self.height))
+        return pygame.transform.scale(pygame.image.load(self.get_path()).convert_alpha(), (self.height, self.height))
+        #return pygame.image.load(self.get_path()).convert_alpha()
+
     
     def blit(self, screen):
         return screen.blit(self.scaled_spaceship_image(), (self.position['x_position'], self.position['y_position']))
@@ -83,10 +85,10 @@ class Enemy(Spaceship):
         self.life = life
 
     def get_path(self):
-        return 'interface/images/ExportedLayers.png'
+        return 'interface/images/enemy_ship.png'
 
     def scaled_spaceship_image(self):
-        return pygame.transform.scale(pygame.image.load(self.get_path()).convert_alpha(), (60, self.height))
+        return pygame.transform.scale(pygame.image.load(self.get_path()).convert_alpha(), (self.height, self.height))
     
     def blit(self, screen):
         return screen.blit(self.scaled_spaceship_image(), (self.position['x_position'], self.position['y_position']))

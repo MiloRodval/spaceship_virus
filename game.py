@@ -21,7 +21,9 @@ world = World(
 )
 
 spaceship_screen = Screen(
-    text_on_screen=''
+    typing_text='Hola como estas',
+    red_text='',
+    green_text=''
 )
 
 player = Spaceship(
@@ -37,7 +39,7 @@ enemy = [Enemy(
     speed = world.box,
     height = world.box,
     position = {
-        'x_position': 1200,
+        'x_position': 1240,
         'y_position': random.randint(2, 11) * world.box
     }
     )]
@@ -46,7 +48,7 @@ game_screen = world.get_game_screen()
 clock = pygame.time.Clock()
 previous_bullet_position = {}
 
-def draw(spaceship_bullets):
+def draw(spaceship_bullets, user_string):
 
     dialogue_screen = pygame.draw.rect(game_screen, (255, 255, 255), pygame.Rect(0, 0, world.width, world.box))
     game_screen.blit(world.get_background(), (0, world.box*2))
@@ -65,7 +67,12 @@ def draw(spaceship_bullets):
                 bullet.blit(game_screen)
                 previous_bullet_position[bullet] = bullet.position
 
-    game_screen.blit(spaceship_screen.get_screen_text(), dialogue_screen)
+    print(user_string)
+    game_screen.blit(spaceship_screen.get_grey_text(), dialogue_screen)
+    if user_string == spaceship_screen.typing_text[:len(user_string)]:
+        game_screen.blit(spaceship_screen.get_green_text(user_string), dialogue_screen)
+    
+
 
     pygame.display.update()
 
@@ -73,8 +80,9 @@ def draw(spaceship_bullets):
 def main():
 
     running: bool = True
-    enemy_moved: bool = False
     spaceship_bullets: list = []
+    user_string = ''
+    
 
     while running:
 
@@ -82,43 +90,26 @@ def main():
 
         # If player does something...
         for event in pygame.event.get():
-
-            # If press quit then Quit
-            if event.type == pygame.QUIT:
-                running = False
-                break
-
-            # If press keys...
             keys = pygame.key.get_pressed()
-            if keys[pygame.K_UP]:
-                player.move_up()
-            if keys[pygame.K_DOWN]:
-                player.move_down()
-            if keys[pygame.K_SPACE]:
-                spaceship_bullets.append(
-                    Jank(height=world.box, speed=40, position={
-                    'x_position': player.position['x_position'] + player.position['x_position'] / 2,
-                    'y_position': player.position['y_position']
-                }))
-
-            if keys[pygame.K_w] and not enemy_moved:
-                enemy[0].move_up()
-                enemy_moved = True
-            elif keys[pygame.K_w]:
-                enemy_moved = False
-
-            if keys[pygame.K_s] and not enemy_moved:
-                enemy[0].move_down()
-                enemy_moved = True
-            elif keys[pygame.K_s]:
-                enemy_moved = False
-
 
             if keys[pygame.K_ESCAPE]:
                 pygame.quit()
 
+            if keys[pygame.K_UP]:
+                player.move_up()
+            if keys[pygame.K_DOWN]:
+                player.move_down()
+
+            # Si la letra que el usuario tecleo matchea con el string en la screen, entonces aparece en verde
+            # Si la letra del usuario no matchea, entonces la letra aparece en rojo y no sobreescribe el user_string
+
+
             if event.type == pygame.KEYDOWN:
-                spaceship_screen.text_on_screen += event.unicode
+                user_string += event.unicode
+            if keys[pygame.K_BACKSPACE]:
+                user_string = user_string[:-1]
+            #if event.type == pygame.K_SPACE:
+                #user_string = ''
 
         if not spaceship_bullets == []:
             for bullet in spaceship_bullets:
@@ -128,7 +119,7 @@ def main():
                         enemy[0].life = 0
 
         # Draw player, spaceship_bullets and enemies
-        draw(spaceship_bullets)
+        draw(spaceship_bullets, user_string)
 
     pygame.quit()
 
