@@ -16,7 +16,7 @@ class World:
     def get_game_screen(self):
         return pygame.display.set_mode((self.width, self.height), self.take_borders_out())
     
-class Screen:
+class Screen(World):
     def __init__(self, user_string, typing_text, red_text, green_text):
         self.user_string = user_string
         self.typing_text = typing_text
@@ -32,6 +32,13 @@ class Screen:
     def get_grey_text(self):
         return self.get_screen_font().render(self.typing_text, True, (175, 175, 175))
     
-    def get_green_text(self, user_string):
-        return self.get_screen_font().render(user_string, True, (58, 188, 35))
+    def get_green_text(self):
+        return self.get_screen_font().render(self.user_string, True, (58, 188, 35))
     
+    def update_word_if_match_next_letter(self, letter_pressed):
+        if letter_pressed in self.typing_text:
+            if self.typing_text[len(self.user_string):].startswith(letter_pressed):
+                self.user_string += letter_pressed
+
+    def match_until_now(self):
+        return self.user_string == self.typing_text[:len(self.user_string)]
