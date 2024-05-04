@@ -17,7 +17,8 @@ class World:
         return pygame.display.set_mode((self.width, self.height), self.take_borders_out())
     
 class Screen:
-    def __init__(self, typing_text, red_text, green_text):
+    def __init__(self, user_string, typing_text, red_text, green_text):
+        self.user_string = user_string
         self.typing_text = typing_text
         self.red_text = red_text
         self.green_text = green_text
@@ -34,5 +35,3 @@ class Screen:
     def get_green_text(self, user_string):
         return self.get_screen_font().render(user_string, True, (58, 188, 35))
     
-    def get_red_text(self, user_string):
-        return self.get_screen_font().render(user_string, True, (197, 40, 40))
