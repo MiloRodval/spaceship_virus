@@ -1,5 +1,6 @@
 from objects.spaceship import Spaceship, Enemy
 from objects.world import World, Screen
+from objects.jank import Jank
 from random_word import RandomWords
 import pygame, random
 
@@ -8,6 +9,7 @@ import pygame, random
 # A veces aparece el enemigo en la coordenada 0, 0
 # Estoy mostrando las balas SOLO SI el enemigo esta vivo; cuando muere, no aparecen
 
+pygame.init()
 pygame.font.init()
 pygame.display.set_caption('Spaceship Virus')
 r = RandomWords()
@@ -36,7 +38,7 @@ player = Spaceship(
     speed = world.box,
     height = world.box,
     position = {
-        'x_position': 0,
+        'x_position': world.box,
         'y_position': world.box*5
         }
 )
@@ -49,6 +51,8 @@ enemy = [Enemy(
         'y_position': random.randint(2, 11) * world.box
     }
     )]
+
+spaceship_bullets = pygame.sprite.Group()
 
 game_screen = world.get_game_screen()
 clock = pygame.time.Clock()
@@ -92,18 +96,23 @@ def draw(spaceship_bullets, refresh_user_and_typing_text_us, blit_user_text_us, 
 
 
 def main():
+    # Block ALL events from being on the queue
+    pygame.event.set_blocked(None)
+    # Allow just this event to be on the queue
+    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP])
 
     running: bool = True
-    spaceship_bullets: list = []
 
     while running:
-
-        clock.tick(30)
+        # Setting FPS
+        clock.tick(60)
 
         refresh_user_and_typing_text_us: bool = False
         blit_user_text_us: bool = False
         refresh_user_and_typing_text_ls: bool = False
         blit_user_text_ls: bool = False
+
+        print(spaceship_bullets)
 
         if upper_screen.typing_text == '':
             upper_screen.typing_text = r.get_random_word()
@@ -118,7 +127,13 @@ def main():
                 pygame.quit()
 
             if keys[pygame.K_UP]:
-                player.move_up()
+                    spaceship_bullets.add(
+                        Jank(
+                            height= world.box,
+                            speed= 10,
+                            position= player.position
+                        )
+                    )
             if keys[pygame.K_DOWN]:
                 player.move_down()
             if keys[pygame.K_BACKSPACE]:
@@ -132,7 +147,7 @@ def main():
 
         if not spaceship_bullets == []:
             for bullet in spaceship_bullets:
-                bullet.move_to_right(world.width, spaceship_bullets)
+                bullet.update()
                 if not enemy == []:
                     if enemy[0].position['x_position'] == round(bullet.position['x_position']) and enemy[0].position['y_position'] == round(bullet.position['y_position']):
                         enemy[0].life = 0
