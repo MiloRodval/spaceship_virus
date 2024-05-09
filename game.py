@@ -17,17 +17,17 @@ r = RandomWords()
 world = World(
     width = 1300,
     height = 400,
-    background_image = 'interface/images/space_background.png'
+    background_image_source = 'interface/images/space_background.png'
 )
 
-upper_screen = Screen(
+aupper_screen = Screen(
     user_string= '',
     typing_text='',
     red_text='',
     green_text=''
 )
 
-lower_screen = Screen(
+alower_screen = Screen(
     user_string= '',
     typing_text='',
     red_text='',
@@ -35,40 +35,56 @@ lower_screen = Screen(
 )
 
 player = Spaceship(
-    speed = world.box,
-    height = world.box,
-    position = {
-        'x_position': world.box,
-        'y_position': world.box*5
-        }
+    x_position = 0,
+    y_position = world.box*5,
+    box = world.box
 )
 
-enemy = [Enemy(
-    speed = world.box,
-    height = world.box,
-    position = {
-        'x_position': 1240,
-        'y_position': random.randint(2, 11) * world.box
-    }
-    )]
+enemy = Enemy(
+    x_position = world.width-50,
+    y_position = random.randint(2, 10)*world.box,
+    box = world.box
+    )
 
 spaceship_bullets = pygame.sprite.Group()
 
-game_screen = world.get_game_screen()
+game_screen = pygame.display.set_mode((world.width, world.height), pygame.NOFRAME)
 clock = pygame.time.Clock()
 previous_bullet_position = {}
 
-def draw(spaceship_bullets, refresh_user_and_typing_text_us, blit_user_text_us, refresh_user_and_typing_text_ls, blit_user_text_ls):
+def draw(spaceship_bullets):
 
-    upper_word_screen = pygame.draw.rect(game_screen, (13, 0, 26), pygame.Rect(0, world.box, world.width, world.box*2))
-    lower_word_screen = pygame.draw.rect(game_screen, (13, 0, 26), pygame.Rect(0, world.height - world.box, world.width, world.height))
-    game_screen.blit(world.get_background(), (0, world.box*2))
-    player.blit(game_screen)
+    # DIALOGUE SCREEN
+    dialogue_screen = pygame.Surface((world.width, world.box))
+    dialogue_screen_rect = dialogue_screen.get_rect(topleft = (0, 0))
 
-    if not enemy == []:
-        enemy[0].blit(game_screen)
+    # UPPER SCREEN
+    upper_screen = pygame.Surface((world.width, world.box))
+    upper_screen_rect = upper_screen.get_rect(topleft = (dialogue_screen_rect.bottomleft))
 
-    # Draw spaceship bullets
+    # PLAYING RECTANGLE
+    gaming_screen = pygame.Surface((world.width, world.box*10))
+    gaming_screen_rect = gaming_screen.get_rect(topleft = (upper_screen_rect.bottomleft))
+    background = pygame.image.load(world.background_image_source).convert_alpha()
+    game_screen.blit(background, gaming_screen_rect)
+
+    spaceship = pygame.image.load(player.spaceship_source).convert_alpha()
+    spaceship_rect = spaceship.get_rect(topleft = (player.x_position, player.y_position))
+    game_screen.blit(spaceship, spaceship_rect)
+
+    enemy_spaceship = pygame.image.load(enemy.spaceship_source).convert_alpha()
+    enemy_rect = enemy_spaceship.get_rect(topleft = (enemy.x_position, enemy.y_position))
+    game_screen.blit(enemy_spaceship, enemy_rect)
+
+    # LOWER SCREEN
+    lower_screen = pygame.Surface((world.width, world.height-world.box))
+    lower_screen_rect = lower_screen.get_rect(bottomleft = (0, world.height))
+    game_screen.blit(lower_screen, lower_screen_rect)
+
+
+    pygame.display.update()
+
+'''    # Draw spaceship bullets
     for bullet in spaceship_bullets:
         if not enemy == []:
             if bullet.position == enemy[0].position:
@@ -78,8 +94,8 @@ def draw(spaceship_bullets, refresh_user_and_typing_text_us, blit_user_text_us, 
                 bullet.blit(game_screen)
                 previous_bullet_position[bullet] = bullet.position
 
-    game_screen.blit(upper_screen.get_grey_text(), upper_word_screen)
-    game_screen.blit(lower_screen.get_grey_text(), lower_word_screen)
+    game_screen.blit(upper_screen.get_grey_text(), upper_screen_rect)
+    game_screen.blit(lower_screen.get_grey_text(), lower_screen_rect)
 
     if refresh_user_and_typing_text_us:
         upper_screen.typing_text = ''
@@ -90,9 +106,9 @@ def draw(spaceship_bullets, refresh_user_and_typing_text_us, blit_user_text_us, 
     if blit_user_text_us:
         game_screen.blit(upper_screen.get_green_text(), upper_word_screen)
     if blit_user_text_ls:
-        game_screen.blit(lower_screen.get_green_text(), lower_word_screen)
+        game_screen.blit(lower_screen.get_green_text(), lower_word_screen)'''
 
-    pygame.display.update()
+    
 
 
 def main():
@@ -101,23 +117,21 @@ def main():
     # Allow just this event to be on the queue
     pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP])
 
-    running: bool = True
+    running = True
 
     while running:
         # Setting FPS
         clock.tick(60)
 
-        refresh_user_and_typing_text_us: bool = False
-        blit_user_text_us: bool = False
-        refresh_user_and_typing_text_ls: bool = False
-        blit_user_text_ls: bool = False
-
-        print(spaceship_bullets)
-
-        if upper_screen.typing_text == '':
-            upper_screen.typing_text = r.get_random_word()
-        if lower_screen.typing_text == '':
-            lower_screen.typing_text = r.get_random_word()
+#        refresh_user_and_typing_text_us: bool = False
+#        blit_user_text_us: bool = False
+#        refresh_user_and_typing_text_ls: bool = False
+#        blit_user_text_ls: bool = False
+#
+#        if upper_screen.typing_text == '':
+#            upper_screen.typing_text = r.get_random_word()
+#        if lower_screen.typing_text == '':
+#            lower_screen.typing_text = r.get_random_word()
 
         # If player does something...
         for event in pygame.event.get():
@@ -126,7 +140,7 @@ def main():
             if keys[pygame.K_ESCAPE]:
                 pygame.quit()
 
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_RIGHT]:
                     spaceship_bullets.add(
                         Jank(
                             height= world.box,
@@ -134,16 +148,21 @@ def main():
                             position= player.position
                         )
                     )
+
+            if keys[pygame.K_UP]:
+                player.move_up()
+
             if keys[pygame.K_DOWN]:
                 player.move_down()
-            if keys[pygame.K_BACKSPACE]:
-                upper_screen.user_string = upper_screen.user_string[:-1]
-                lower_screen.user_string = lower_screen.user_string[:-1]
-                continue
 
-            if event.type == pygame.KEYDOWN:
-                upper_screen.update_word_if_match_next_letter(event.unicode)
-                lower_screen.update_word_if_match_next_letter(event.unicode)
+#            if keys[pygame.K_BACKSPACE]:
+#                upper_screen.user_string = upper_screen.user_string[:-1]
+#                lower_screen.user_string = lower_screen.user_string[:-1]
+#                continue
+
+#            if event.type == pygame.KEYDOWN:
+#                upper_screen.update_word_if_match_next_letter(event.unicode)
+#                lower_screen.update_word_if_match_next_letter(event.unicode)
 
         if not spaceship_bullets == []:
             for bullet in spaceship_bullets:
@@ -153,24 +172,24 @@ def main():
                         enemy[0].life = 0
 
 
-        if upper_screen.user_string == upper_screen.typing_text:
-            refresh_user_and_typing_text_us = True
-            player.move_up()
-        elif upper_screen.match_until_now():
-            blit_user_text_us = True
-        else:
-            blit_user_text_us = True
+#        if upper_screen.user_string == upper_screen.typing_text:
+#            refresh_user_and_typing_text_us = True
+#            player.move_up()
+#        elif upper_screen.match_until_now():
+#            blit_user_text_us = True
+#        else:
+#            blit_user_text_us = True
 
-        if lower_screen.user_string == lower_screen.typing_text:
-            refresh_user_and_typing_text_ls = True
-            player.move_down()
-        elif lower_screen.match_until_now():
-            blit_user_text_ls = True
-        else:
-            blit_user_text_ls = True
+#        if lower_screen.user_string == lower_screen.typing_text:
+#            refresh_user_and_typing_text_ls = True
+#            player.move_down()
+#        elif lower_screen.match_until_now():
+#            blit_user_text_ls = True
+#        else:
+#            blit_user_text_ls = True
 
         # Draw player, spaceship_bullets and enemies
-        draw(spaceship_bullets, refresh_user_and_typing_text_us, blit_user_text_us, refresh_user_and_typing_text_ls, blit_user_text_ls)
+        draw(spaceship_bullets)
 
     pygame.quit()
 

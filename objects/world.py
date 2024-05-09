@@ -1,20 +1,11 @@
 import pygame
 
 class World:
-    def __init__(self, width, height, background_image):
+    def __init__(self, width, height, background_image_source):
         self.width = width
         self.height = height
         self.box = round(self.height / 13)
-        self.background_image = background_image
-
-    def get_background(self):
-        return pygame.transform.scale(pygame.image.load(self.background_image), (self.width, self.box*10)).convert()
-    
-    def take_borders_out(self):
-        return pygame.NOFRAME
-
-    def get_game_screen(self):
-        return pygame.display.set_mode((self.width, self.height), self.take_borders_out())
+        self.background_image_source = background_image_source
     
 class Screen(World):
     def __init__(self, user_string, typing_text, red_text, green_text):
@@ -22,9 +13,6 @@ class Screen(World):
         self.typing_text = typing_text
         self.red_text = red_text
         self.green_text = green_text
-
-    def get_user_input(self):
-        return input()
     
     def get_screen_font(self):
         return pygame.font.Font(None, 32)
