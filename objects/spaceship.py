@@ -1,6 +1,6 @@
 import pygame
 
-class Spaceship:
+class Spaceship(World):
     def __init__(self, x_position, y_position, box):
         self.x_position = x_position
         self.y_position = y_position
@@ -10,28 +10,24 @@ class Spaceship:
         self.box = box
         self.speed = self.box
 
+    @property
+    def y_position(self):
+        return self._y_position
+    
+    @y_position.setter
+    def y_position(self, y_position):
+        if 0 < y_position < self.height:
+            self._y_position = y_position
+
+
     @classmethod
     def get(cls):
         return cls()
-
-    def move_down(self):
-        new_position = self.rect.copy()
-        new_position.bottom += self.speed
-        # Only moves if it doesn't go lower that the last box of the gaming screen
-        if new_position.bottom < self.box*12:
-            self.bottom = new_position
-
-    def move_up(self):
-        new_position = self.rect.copy()
-        new_position.top -= self.speed
-        # Only moves if it doesn't go beyond the top of the screen
-        if new_position.top > self.box-self.box:
-            self.top = new_position
 
 class Enemy(Spaceship):
     def __init__(self, x_position, y_position, box):
         super().__init__(x_position, y_position, box)
         self.x_position = x_position
         self.y_position = y_position
-        self.spaceship_source = 'interface/images/ship.png'
+        self.spaceship_source = 'interface/images/enemy_ship.png'
         self.box = box
