@@ -50,20 +50,30 @@ def main():
     pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP])
 
     running = True
-    upper_random_word = r.get_random_word()
+    update_upper_word = True
+    update_lower_word = True
+    current_word = ''
+    
 
     while running:
         # Setting FPS
         clock.tick(60)
 
+        if update_upper_word:
+            upper_random_word = r.get_random_word()
+            update_upper_word = False
+        if update_lower_word:
+            lower_random_word = r.get_random_word()
+            update_lower_word = False          
+
         # If player does something...
         for event in pygame.event.get():
-            keys = pygame.key.get_pressed()
+            key = pygame.key.get_pressed()
 
-            if keys[pygame.K_ESCAPE] or event.type == pygame.QUIT:
+            if key[pygame.K_ESCAPE] or event.type == pygame.QUIT:
                 pygame.quit()
 
-            if keys[pygame.K_RIGHT]:
+            if key[pygame.K_SPACE]:
                     spaceship_bullets.add(
                         Jank(
                             height= world.box,
@@ -71,12 +81,24 @@ def main():
                             position= player.position
                         )
                     )
+                
+            if key[pygame.K_BACKSPACE]:
+                current_word = current_word[:-1]
+                continue
 
-            if keys[pygame.K_UP]:
-                player.y_position -= player.speed
+            if event.type == pygame.KEYDOWN:
+                current_word = current_word + event.unicode
 
-            if keys[pygame.K_DOWN]:
-                player.y_position += player.speed
+                if current_word == upper_random_word:
+                    player.y_position -= player.speed
+                    update_upper_word = True
+                    current_word = ''
+
+                if current_word == lower_random_word:
+                    player.y_position += player.speed
+                    update_lower_word = True
+                    current_word = ''
+
 
         # DIALOGUE SCREEN
         dialogue_screen = pygame.Surface((world.width, world.box))
@@ -94,13 +116,14 @@ def main():
         upper_screen.fill((13, 0, 26))
         upper_screen_rect = upper_screen.get_rect(topleft = (dialogue_screen_rect.bottomleft))
 
-        upper_word = font.render(upper_random_word, None, (0, 149, 17))
+        upper_word = font.render(upper_random_word, None, (0, 59, 0))
+        current_word_font_upper = font.render(current_word, None, (0, 149, 17))
         upper_word_rect = upper_word.get_rect(midleft = (upper_screen_rect.midleft))
 
-        #ACA ESTOY
         game_screen.blit(upper_screen, upper_screen_rect)
-        game_screen.blit(font.render(' * ', None, (0, 149, 17)), upper_word_rect.midleft)
         game_screen.blit(upper_word, upper_word_rect.midleft)
+        if current_word == upper_random_word:
+            game_screen.blit(current_word_font_upper, upper_word_rect.midleft)
 
         # PLAYING RECTANGLE
         gaming_screen = pygame.Surface((world.width, world.box*10))
@@ -124,7 +147,15 @@ def main():
         lower_screen = pygame.Surface((world.width, world.box))
         lower_screen.fill((13, 0, 26))
         lower_screen_rect = lower_screen.get_rect(bottomleft = (0, world.height))
+
+        lower_word = font.render(lower_random_word ,None, (0, 59, 0))
+        lower_word_rect = lower_word.get_rect(topleft = (gaming_screen_rect.bottomleft))
+        current_word_font_lower = font.render(current_word, None, (0, 149, 17))
+
         game_screen.blit(lower_screen, lower_screen_rect)
+        game_screen.blit(lower_word, lower_word_rect.midleft)
+        if current_word == lower_random_word[:len(current_word)]:
+            game_screen.blit(current_word_font_lower, lower_word_rect.midleft)
 
         pygame.display.update()
 
