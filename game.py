@@ -1,12 +1,11 @@
-from objects.world import World, Spaceship, Enemy, Screen
+from objects.world import World, Spaceship, Screen
 from objects.jank import Jank
+from objects.enemy import Enemy
 from random_word import RandomWords
 import pygame, random
 
 # BUGS
-# En la segunda o tercera BOX el enemy no muere
-# A veces aparece el enemigo en la coordenada 0, 0
-# Estoy mostrando las balas SOLO SI el enemigo esta vivo; cuando muere, no aparecen
+# A veces se escribe dos veces la misma letra
 
 pygame.init()
 pygame.font.init()
@@ -30,12 +29,9 @@ player = Spaceship(
     height = world.height,
 )
 
-enemy = Enemy(
-    x_position = world.width-75,
-    y_position = world.box*5,
-    width = world.width,
-    height = world.height,
-    )
+enemies = pygame.sprite.Group()
+
+enemies.add(Enemy((world.width - 100, world.box * 5),world.box))
 
 spaceship_bullets = pygame.sprite.Group()
 
@@ -49,15 +45,18 @@ def main():
     # Allow just this event to be on the queue
     pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP])
 
+    start_time = pygame.time.get_ticks()
     running = True
     update_upper_word = True
     update_lower_word = True
     current_word = ''
-    
 
     while running:
         # Setting FPS
         clock.tick(60)
+
+        elapsed_time = pygame.time.get_ticks() - start_time
+        elapsed_time_enemy_moved = pygame.time.get_ticks() - start_time
 
         if update_upper_word:
             upper_random_word = r.get_random_word()
@@ -74,20 +73,21 @@ def main():
                 pygame.quit()
 
             if key[pygame.K_SPACE]:
-                    spaceship_bullets.add(
-                        Jank(
-                            height= world.box,
-                            speed= 10,
-                            position= player.position
-                        )
-                    )
+                    spaceship_bullets.add(Jank(world.box, 40, spaceship_rect.midright))
                 
             if key[pygame.K_BACKSPACE]:
                 current_word = current_word[:-1]
                 continue
 
+            if key[pygame.K_UP]:
+                enemies.update()
+
             if event.type == pygame.KEYDOWN:
-                current_word = current_word + event.unicode
+                
+                if len(lower_random_word) > len(current_word) and event.unicode == lower_random_word[len(current_word)]:
+                    current_word = current_word + event.unicode
+                if len(upper_random_word) > len(current_word) and event.unicode == upper_random_word[len(current_word)]:
+                    current_word = current_word + event.unicode
 
                 if current_word == upper_random_word:
                     player.y_position -= player.speed
@@ -105,7 +105,7 @@ def main():
         dialogue_screen.fill((13, 2, 8))
         dialogue_screen_rect = dialogue_screen.get_rect(topleft = (0, 0))
 
-        dialogue = font.render(' - Seems like I\'m on space', None, (0, 149, 17))
+        dialogue = font.render(f'{len(current_word)}, {current_word}', None, (0, 149, 17))
         dialogue_rect = dialogue.get_rect(midleft = (dialogue_screen_rect.midleft))
 
         game_screen.blit(dialogue_screen, dialogue_screen_rect)
@@ -122,8 +122,9 @@ def main():
 
         game_screen.blit(upper_screen, upper_screen_rect)
         game_screen.blit(upper_word, upper_word_rect.midleft)
-        if current_word == upper_random_word:
+        if current_word == upper_random_word[:len(current_word)]:
             game_screen.blit(current_word_font_upper, upper_word_rect.midleft)
+
 
         # PLAYING RECTANGLE
         gaming_screen = pygame.Surface((world.width, world.box*10))
@@ -133,15 +134,19 @@ def main():
         game_screen.blit(background, gaming_screen_rect)
 
         spaceship = pygame.image.load(player.spaceship_source).convert_alpha()
-        spaceship_scaled = pygame.transform.scale(spaceship, (75, world.box))
-        spaceship_rect = spaceship_scaled.get_rect(topleft = (player.x_position, player.y_position))
+        spaceship = pygame.transform.rotozoom(spaceship, 0, 1)
+        spaceship_rect = spaceship.get_rect(topleft = (player.x_position, player.y_position))
 
-        game_screen.blit(spaceship_scaled, spaceship_rect)
+        game_screen.blit(spaceship, spaceship_rect)
 
-        enemy_spaceship = pygame.image.load(enemy.spaceship_source).convert_alpha()
-        enemy_rect = enemy_spaceship.get_rect(topleft = (enemy.x_position, enemy.y_position))
+        if elapsed_time >= 6000 and len(enemies) <= 3:
+            enemies.add(Enemy((world.width - 100, world.box * 6), world.box))
+            elapsed_time = 0
 
-        game_screen.blit(enemy_spaceship, enemy_rect)
+        spaceship_bullets.update()
+        spaceship_bullets.draw(game_screen)
+
+        enemies.draw(game_screen)
 
         # LOWER SCREEN
         lower_screen = pygame.Surface((world.width, world.box))

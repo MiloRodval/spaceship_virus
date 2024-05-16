@@ -36,12 +36,3 @@ class Spaceship(World):
     @classmethod
     def get(cls):
         return cls()
-
-class Enemy(Spaceship):
-    def __init__(self, x_position, y_position, width, height):
-        super().__init__(x_position, y_position, width, height)
-        self.x_position = x_position
-        self.y_position = y_position
-        self.spaceship_source = 'interface/images/enemy_ship.png'
-        self.width = width
-        self.height = height

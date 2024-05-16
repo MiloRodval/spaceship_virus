@@ -3,23 +3,16 @@ import pygame
 width = 1300
 
 class Jank(pygame.sprite.Sprite):
-
-    def __init__(self, height, speed, position={'x_position': 0, 'y_position': 0}):
+    def __init__(self, height, speed, position):
         pygame.sprite.Sprite.__init__(self)
         self.height = height
         self.speed = speed
-        self.position = position
+        self.image = pygame.transform.scale(pygame.image.load('interface/images/laserbeam.png').convert_alpha(), (60, self.height))
+        self.rect = self.image.get_rect()
+        self.rect.midleft = position
 
     def update(self):
-        self.position['x_position'] += self.speed
-        if self.position['x_position'] > width:
-            self.kill()
-
-    def scaled_bullet_image(self):
-        return pygame.transform.scale(pygame.image.load('interface/images/laserbeam.png').convert_alpha(), (60, self.height))
-    
-    def blit(self, screen):
-        return screen.blit(self.scaled_bullet_image(), (self.position['x_position'], self.position['y_position']))
+        self.rect.move_ip(self.speed, 0)
 
     @classmethod
     def get(cls):
