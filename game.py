@@ -1,5 +1,5 @@
-from objects.world import World, Spaceship, Screen
-from objects.jank import Jank
+from objects.spaceship import Spaceship
+from objects.bullet import Player_bullet, Enemy_bullet
 from objects.enemy import Enemy
 from random_word import RandomWords
 import pygame, random
@@ -13,111 +13,111 @@ pygame.display.set_caption('Spaceship Virus')
 r = RandomWords()
 font = pygame.font.Font('./interface/fonts/retganon.ttf', 30)
 
-world = World(
-    width = 1500,
-    height = 750,
-)
+WIDTH = 1500
+HEIGHT = 750
+BOX = round(HEIGHT / 13)
 
-screen = Screen(
-     background_image_source = 'interface/images/space_background.png',
-)
+screen = 'interface/images/space_background.png'
+game_screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-player = Spaceship(
-    x_position = 10,
-    y_position = world.box*5,
-    width = world.width,
-    height = world.height,
-)
+player = pygame.sprite.GroupSingle()
+player.add(Spaceship((10, BOX*3), BOX))
 
 enemies = pygame.sprite.Group()
-
-enemies.add(Enemy((world.width - 100, world.box * 5),world.box))
-
 spaceship_bullets = pygame.sprite.Group()
+enemy_bullets = pygame.sprite.Group()
 
-game_screen = pygame.display.set_mode((world.width, world.height), pygame.NOFRAME)
 clock = pygame.time.Clock()
-previous_bullet_position = {}
 
 def main():
-    # Block ALL events from being on the queue
-    pygame.event.set_blocked(None)
-    # Allow just this event to be on the queue
-    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP])
+    # Timer
+    enemy_timer = pygame.USEREVENT + 1
+    pygame.time.set_timer(enemy_timer, 5000)
+    enemy_shooting_timer = pygame.USEREVENT + 2
+    pygame.time.set_timer(enemy_shooting_timer, 3000)
 
-    start_time = pygame.time.get_ticks()
-    running = True
     update_upper_word = True
     update_lower_word = True
+    update_shooting_word = True
     current_word = ''
 
+    running = True
     while running:
         # Setting FPS
         clock.tick(60)
 
-        elapsed_time = pygame.time.get_ticks() - start_time
-        elapsed_time_enemy_moved = pygame.time.get_ticks() - start_time
-
+        # Update random words if condition is met
         if update_upper_word:
             upper_random_word = r.get_random_word()
             update_upper_word = False
         if update_lower_word:
             lower_random_word = r.get_random_word()
-            update_lower_word = False          
+            update_lower_word = False
+        if update_shooting_word:
+            shooting_random_word = r.get_random_word()
+            update_shooting_word = False 
 
         # If player does something...
         for event in pygame.event.get():
-            key = pygame.key.get_pressed()
 
-            if key[pygame.K_ESCAPE] or event.type == pygame.QUIT:
+            if event.type == pygame.QUIT:
                 pygame.quit()
 
-            if key[pygame.K_SPACE]:
-                    spaceship_bullets.add(Jank(world.box, 40, spaceship_rect.midright))
-                
-            if key[pygame.K_BACKSPACE]:
-                current_word = current_word[:-1]
-                continue
-
-            if key[pygame.K_UP]:
-                enemies.update()
-
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    current_word = current_word[:-1]
+                    continue
+
+            if event.type == pygame.TEXTINPUT:
                 
-                if len(lower_random_word) > len(current_word) and event.unicode == lower_random_word[len(current_word)]:
-                    current_word = current_word + event.unicode
-                if len(upper_random_word) > len(current_word) and event.unicode == upper_random_word[len(current_word)]:
-                    current_word = current_word + event.unicode
+                if len(upper_random_word) > len(current_word) and event.text == upper_random_word[len(current_word)]:
+                    current_word += event.text
+                if len(lower_random_word) > len(current_word) and event.text == lower_random_word[len(current_word)]:
+                    current_word += event.text
+                if len(shooting_random_word) > len(current_word) and event.text == shooting_random_word[len(current_word)]:
+                    current_word += event.text
 
                 if current_word == upper_random_word:
-                    player.y_position -= player.speed
+                    player.sprite.rect.move_ip(0, -player.sprite.speed)
                     update_upper_word = True
                     current_word = ''
-
+                    
                 if current_word == lower_random_word:
-                    player.y_position += player.speed
+                    player.sprite.rect.move_ip(0, player.sprite.speed)
                     update_lower_word = True
                     current_word = ''
 
+                if current_word == shooting_random_word:
+                    spaceship_bullets.add(Player_bullet(WIDTH, 40, player.sprite.rect.midright))
+                    update_shooting_word = True
+                    current_word = ''
+
+            if event.type == enemy_timer and len(enemies) <= 3:
+                random_place = random.randint(2, 11) * BOX
+                enemies.add(Enemy((WIDTH - 100, random_place), BOX, BOX*10))
+            
+            if event.type == enemy_shooting_timer:
+                for enemy in enemies:
+                    enemy_bullets.add(Enemy_bullet(10, enemy.rect.midleft))
 
         # DIALOGUE SCREEN
-        dialogue_screen = pygame.Surface((world.width, world.box))
+        dialogue_screen = pygame.Surface((WIDTH, BOX))
         dialogue_screen.fill((13, 2, 8))
         dialogue_screen_rect = dialogue_screen.get_rect(topleft = (0, 0))
 
-        dialogue = font.render(f'{len(current_word)}, {current_word}', None, (0, 149, 17))
+        dialogue = font.render(f'{current_word = }', False, (0, 149, 17))
         dialogue_rect = dialogue.get_rect(midleft = (dialogue_screen_rect.midleft))
 
         game_screen.blit(dialogue_screen, dialogue_screen_rect)
         game_screen.blit(dialogue, dialogue_rect)
 
         # UPPER SCREEN
-        upper_screen = pygame.Surface((world.width, world.box))
+        upper_screen = pygame.Surface((WIDTH, BOX))
         upper_screen.fill((13, 0, 26))
         upper_screen_rect = upper_screen.get_rect(topleft = (dialogue_screen_rect.bottomleft))
 
-        upper_word = font.render(upper_random_word, None, (0, 59, 0))
-        current_word_font_upper = font.render(current_word, None, (0, 149, 17))
+        upper_word = font.render(upper_random_word, False, (0, 59, 0))
+        current_word_font_upper = font.render(current_word, False, (0, 149, 17))
         upper_word_rect = upper_word.get_rect(midleft = (upper_screen_rect.midleft))
 
         game_screen.blit(upper_screen, upper_screen_rect)
@@ -126,42 +126,59 @@ def main():
             game_screen.blit(current_word_font_upper, upper_word_rect.midleft)
 
 
-        # PLAYING RECTANGLE
-        gaming_screen = pygame.Surface((world.width, world.box*10))
+        # PLAYING SCREEN
+        gaming_screen = pygame.Surface((WIDTH, BOX*10))
         gaming_screen_rect = gaming_screen.get_rect(topleft = (upper_screen_rect.bottomleft))
-        background = pygame.image.load(screen.background_image_source).convert_alpha()
+        background = pygame.image.load(screen).convert_alpha()
 
         game_screen.blit(background, gaming_screen_rect)
 
-        spaceship = pygame.image.load(player.spaceship_source).convert_alpha()
-        spaceship = pygame.transform.rotozoom(spaceship, 0, 1)
-        spaceship_rect = spaceship.get_rect(topleft = (player.x_position, player.y_position))
-
-        game_screen.blit(spaceship, spaceship_rect)
-
-        if elapsed_time >= 6000 and len(enemies) <= 3:
-            enemies.add(Enemy((world.width - 100, world.box * 6), world.box))
-            elapsed_time = 0
+        # game_screen.blit(player.image, player.rect)
+        player.draw(game_screen)
 
         spaceship_bullets.update()
         spaceship_bullets.draw(game_screen)
 
+        enemy_bullets.update()
+        enemy_bullets.draw(game_screen)
+
+        for bullet in spaceship_bullets:
+            for enemy in enemies:
+                if bullet.rect.colliderect(enemy):
+                    enemy.kill()
+                    enemies_killed += 1
+
+        for bullet in enemy_bullets:
+            if bullet.rect.colliderect(player.sprite.rect):
+                player.sprite.kill()
+                break
+
         enemies.draw(game_screen)
 
         # LOWER SCREEN
-        lower_screen = pygame.Surface((world.width, world.box))
+        lower_screen = pygame.Surface((WIDTH, BOX))
         lower_screen.fill((13, 0, 26))
-        lower_screen_rect = lower_screen.get_rect(bottomleft = (0, world.height))
 
-        lower_word = font.render(lower_random_word ,None, (0, 59, 0))
+        #LEFT LOWER SCREEN
+        left_lower_screen_rect = lower_screen.get_rect(topleft = gaming_screen_rect.bottomleft)
+        lower_word = font.render(lower_random_word, False, (0, 59, 0))
         lower_word_rect = lower_word.get_rect(topleft = (gaming_screen_rect.bottomleft))
-        current_word_font_lower = font.render(current_word, None, (0, 149, 17))
+        current_word_font_lower = font.render(current_word, False, (0, 149, 17))
 
-        game_screen.blit(lower_screen, lower_screen_rect)
+        game_screen.blit(lower_screen, left_lower_screen_rect)
         game_screen.blit(lower_word, lower_word_rect.midleft)
         if current_word == lower_random_word[:len(current_word)]:
             game_screen.blit(current_word_font_lower, lower_word_rect.midleft)
 
+        # RIGHT LOWER SCREEN
+        shooting_word = font.render(shooting_random_word, False, (0, 59, 0))
+        shooting_word_rect = shooting_word.get_rect(midleft = (left_lower_screen_rect.center))
+        current_word_font_shooting = font.render(current_word, False, (0, 149, 17))
+
+        game_screen.blit(shooting_word, shooting_word_rect.topleft)
+        if current_word == shooting_random_word[:len(current_word)]:
+            game_screen.blit(current_word_font_shooting, shooting_word_rect.topleft)
+        
         pygame.display.update()
 
     pygame.quit()
