@@ -39,6 +39,9 @@ def main():
     update_upper_word = True
     update_lower_word = True
     update_shooting_word = True
+    typed_upper = False
+    typed_lower = False
+    typed_shooting = False
     current_word = ''
 
     upper_random_word = r.get_random_word()
@@ -91,32 +94,52 @@ def main():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
+                    if len(current_word[:-1]) == 0:
+                        typed_upper = False
+                        typed_lower = False
+                        typed_shooting = False
                     current_word = current_word[:-1]
-                    continue
 
             if event.type == pygame.TEXTINPUT:
+
+                if event.text == upper_random_word[0]:
+                    typed_upper = True
+                if event.text == lower_random_word[0]:
+                    typed_lower = True
+                if event.text == shooting_random_word[0]:
+                    typed_shooting = True
                 
-                if len(upper_random_word) > len(current_word) and event.text == upper_random_word[len(current_word)]:
-                    current_word += event.text
-                if len(lower_random_word) > len(current_word) and event.text == lower_random_word[len(current_word)]:
-                    current_word += event.text
-                if len(shooting_random_word) > len(current_word) and event.text == shooting_random_word[len(current_word)]:
-                    current_word += event.text
 
-                if current_word == upper_random_word:
-                    player.sprite.rect.move_ip(0, -player.sprite.speed)
-                    update_upper_word = True
-                    current_word = ''
+                if typed_upper:
+                    if len(upper_random_word) > len(current_word) and event.text == upper_random_word[len(current_word)]:
+                        current_word += event.text
 
-                if current_word == lower_random_word:
-                    player.sprite.rect.move_ip(0, player.sprite.speed)
-                    update_lower_word = True
-                    current_word = ''
+                    if current_word == upper_random_word:
+                        player.sprite.rect.move_ip(0, -player.sprite.speed)
+                        update_upper_word = True
+                        current_word = ''
+                        typed_upper = False
 
-                if current_word == shooting_random_word:
-                    spaceship_bullets.add(Player_bullet(WIDTH, 40, player.sprite.rect.midright))
-                    update_shooting_word = True
-                    current_word = ''
+
+                if typed_lower:
+                    if len(lower_random_word) > len(current_word) and event.text == lower_random_word[len(current_word)]:
+                        current_word += event.text
+
+                    if current_word == lower_random_word:
+                        player.sprite.rect.move_ip(0, player.sprite.speed)
+                        update_lower_word = True
+                        current_word = ''
+                        typed_lower = False
+
+                if typed_shooting:
+                    if len(shooting_random_word) > len(current_word) and event.text == shooting_random_word[len(current_word)]:
+                        current_word += event.text
+
+                    if current_word == shooting_random_word:
+                        spaceship_bullets.add(Player_bullet(WIDTH, 40, player.sprite.rect.midright))
+                        update_shooting_word = True
+                        current_word = ''
+                        typed_lower = False
 
             if event.type == enemy_timer and len(enemies) <= 3:
                 random_place = random.randint(2, 11) * BOX
