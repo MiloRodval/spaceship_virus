@@ -41,21 +41,47 @@ def main():
     update_shooting_word = True
     current_word = ''
 
+    upper_random_word = r.get_random_word()
+    update_upper_word = False
+
+    while True:
+        new_word = r.get_random_word()
+        if new_word[0] != upper_random_word[0]:
+            lower_random_word = new_word
+            update_lower_word = False
+            break
+
+    while True:
+        new_word = r.get_random_word()
+        if new_word[0] != upper_random_word[0] and new_word[0] != lower_random_word[0]:
+            shooting_random_word = new_word
+            update_shooting_word = False
+            break
+
+
     running = True
     while running:
         # Setting FPS
         clock.tick(60)
 
         # Update random words if condition is met
-        if update_upper_word:
-            upper_random_word = r.get_random_word()
-            update_upper_word = False
-        if update_lower_word:
-            lower_random_word = r.get_random_word()
-            update_lower_word = False
-        if update_shooting_word:
-            shooting_random_word = r.get_random_word()
-            update_shooting_word = False 
+        while update_upper_word:
+            new_word = r.get_random_word()
+            if new_word[0] != lower_random_word[0] and new_word[0] != shooting_random_word[0]:
+                upper_random_word = new_word
+                update_upper_word = False
+
+        while update_lower_word:
+            new_word = r.get_random_word()
+            if new_word[0] != upper_random_word[0] and new_word[0] != shooting_random_word[0]:
+                lower_random_word = r.get_random_word()
+                update_lower_word = False
+
+        while update_shooting_word:
+            new_word = r.get_random_word()
+            if new_word[0] != lower_random_word[0] and new_word[0] != lower_random_word[0]:
+                shooting_random_word = r.get_random_word()
+                update_shooting_word = False 
 
         # If player does something...
         for event in pygame.event.get():
@@ -81,7 +107,7 @@ def main():
                     player.sprite.rect.move_ip(0, -player.sprite.speed)
                     update_upper_word = True
                     current_word = ''
-                    
+
                 if current_word == lower_random_word:
                     player.sprite.rect.move_ip(0, player.sprite.speed)
                     update_lower_word = True
